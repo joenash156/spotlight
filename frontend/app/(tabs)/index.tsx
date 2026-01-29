@@ -3,13 +3,18 @@ import React, { useState } from 'react'
 import { router } from 'expo-router'
 import { useAuth } from '@clerk/clerk-expo'
 import { COLORS } from '@/constants/theme'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons, FontAwesome6 } from '@expo/vector-icons'
 import BottomModal from '@/components/BottomModal'
 
 const Home = () => {
 
   const { signOut } = useAuth()
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  function handleSignout() {
+    signOut()
+    setModalVisible(false)
+  }
 
   return (
     <View
@@ -18,7 +23,7 @@ const Home = () => {
       {/* header */}
       <View
         style={{}}
-        className="flex-row items-center justify-between py-2 px-3 border-b border-b-gray-800"
+        className="flex-row items-center justify-between p-3 border-b border-b-gray-800"
       >
         {/* <View></View> */}
         <View className="flex-row items-center">
@@ -34,12 +39,11 @@ const Home = () => {
           </Text>
         </View>
         <TouchableOpacity
-          // onPress={() => signOut()}
-          // onPress={() => router.replace("/menu")}
           onPress={() => setModalVisible(true)}
           activeOpacity={0.8}
         >
-          <Ionicons name="log-out-outline" size={24} color={COLORS.white} />
+          {/* <Ionicons name="log-out-outline" size={24} color={COLORS.white} /> */}
+          <FontAwesome6 name="bars-staggered" size={24} color={COLORS.white} />
         </TouchableOpacity>
       </View>
 
@@ -48,15 +52,21 @@ const Home = () => {
         onClose={() => setModalVisible(false)}
 
       >
-        <Text className="text-red-600 text-lg mb-4">
-          Hello from the bottom 👋
-        </Text>
+        <View
+          className="flex-row items-baseline justify-center"
+        >
+          {/* <Ionicons name="person-outline" size={15} color={"red"} /> */}
+          <Text className="text-red-600 text-lg mb-4 ml-1">
+            Account
+          </Text>
+        </View>
 
         <TouchableOpacity
-          onPress={() => setModalVisible(false)}
+
+          onPress={handleSignout}
           className="bg-red-600 py-3 rounded-xl"
         >
-          <Text className="text-white text-center">Close</Text>
+          <Text className="text-white text-center">Sign out</Text>
         </TouchableOpacity>
       </BottomModal>
 

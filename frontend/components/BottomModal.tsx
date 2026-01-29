@@ -22,17 +22,18 @@ export default function BottomModal({
       onBackdropPress={onClose}
       style={{
         margin: 0,
-        justifyContent: "flex-end", 
+        justifyContent: "flex-end",
       }}
-      //hasBackdrop={true}    
+    //hasBackdrop={true}    
     >
       {/* BOTTOM SHEET */}
       <View
         style={{
-          height: height * 0.5,
+          height: height * 0.3,
         }}
         className="bg-gray-900 rounded-t-3xl p-5"
       >
+        <View className="h-1.5 w-16 bg-gray-500 rounded-full mx-auto mb-4"></View>
         {children}
       </View>
     </Modal>
