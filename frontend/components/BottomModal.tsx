@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, View, Pressable } from "react-native";
+import { View, Dimensions } from "react-native";
+import Modal from "react-native-modal";
 
 type BottomModalProps = {
   visible: boolean;
@@ -12,26 +13,27 @@ export default function BottomModal({
   onClose,
   children,
 }: BottomModalProps) {
+
+  const { height } = Dimensions.get("window");
+
   return (
     <Modal
-      visible={visible}
-      className="bg-white"
-      transparent
-      animationType="slide"
-      onRequestClose={onClose} // Android back button
+      isVisible={visible}
+      onBackdropPress={onClose}
+      style={{
+        margin: 0,
+        justifyContent: "flex-end", 
+      }}
+      //hasBackdrop={true}    
     >
-      <View className="bg-[#121212] rounded-t-3xl p-5 max-h-[80%]">
-        <Pressable
-          className="flex-1 justify-end bg-black/50"
-          onPress={onClose}
-        >
-          {/* Prevent closing when clicking inside */}
-          <Pressable onPress={() => { }}>
-            <View className="bg-[#121212] rounded-t-3xl p-5">
-              {children}
-            </View>
-          </Pressable>
-        </Pressable>
+      {/* BOTTOM SHEET */}
+      <View
+        style={{
+          height: height * 0.5,
+        }}
+        className="bg-gray-900 rounded-t-3xl p-5"
+      >
+        {children}
       </View>
     </Modal>
   );
