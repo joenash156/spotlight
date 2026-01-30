@@ -3,13 +3,22 @@ import InitialLayout from "@/components/InitialLayout";
 import ClerkAndConvexProvider from "@/providers/ClerkAndConvexProvider";
 import { SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import "@/global.css"
+import { useCallback, useEffect } from "react";
+import "@/global.css";
+import * as NavigationBar from "expo-navigation-bar";
+import { Platform } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      NavigationBar.setBackgroundColorAsync("#000000")
+      NavigationBar.setButtonStyleAsync("light")
+    }
+  }, [])
+
   const [fontsLoaded] = useFonts({
     "JetBrainsMono-Medium": require("../assets/fonts/JetBrainsMono-VariableFont_wght.ttf"),
   });
@@ -21,6 +30,8 @@ export default function RootLayout() {
   if (!fontsLoaded) {
     return null;
   }
+
+
 
   return (
     <ClerkAndConvexProvider>

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native'
+import { View, Text, TouchableOpacity, FlatList, Dimensions, RefreshControl } from 'react-native'
 import React, { useState } from 'react'
 // import { router } from 'expo-router'
 import { useAuth } from '@clerk/clerk-expo'
@@ -12,10 +12,13 @@ import { api } from '@/convex/_generated/api'
 import Loader from "@/components/Loader"
 import Post from '@/components/Post'
 
+const { height } = Dimensions.get("window")
+
 const Home = () => {
 
   const { signOut } = useAuth()
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState(false)
 
   // fetch posts
   const posts = useQuery(api.post.getFeedPosts)
@@ -27,6 +30,11 @@ const Home = () => {
   function handleSignout() {
     signOut()
     setModalVisible(false)
+  }
+
+  function onRefresh() {
+    setRefreshing(true)
+    setTimeout(() => setRefreshing(false), 600)
   }
 
   return (
@@ -55,25 +63,9 @@ const Home = () => {
           onPress={() => setModalVisible(true)}
           activeOpacity={0.8}
         >
-          {/* <Ionicons name="log-out-outline" size={24} color={COLORS.white} /> */}
           <FontAwesome6 name="bars-staggered" size={24} color={COLORS.white} />
         </TouchableOpacity>
       </View>
-
-      {/* <ScrollView
-
-      >
-        
-
-        <View
-          className="pb-16"
-        >
-          {posts.map((post) => (
-            <Post key={post._id} post={post} />
-          ))}
-        </View>
-
-      </ScrollView> */}
 
       <FlatList
         data={posts}
@@ -86,18 +78,29 @@ const Home = () => {
           paddingBottom: 60
         }}
         ListHeaderComponent={<StoriesSection />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+            colors={[COLORS.primary]}
+            progressBackgroundColor="black"
+            progressViewOffset={5}
+          />
+        }
       />
 
       {/* modal */}
       <BottomModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
+        height={height * 0.3}
 
       >
         <View
           className="flex-row items-baseline justify-center"
         >
-          <Text className="text-gray-400 font-bold text-lg mb-4 ml-1">
+          <Text className="text-gray-400 font-bold text-lg mb-4">
             Account
           </Text>
         </View>

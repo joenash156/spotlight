@@ -69,7 +69,7 @@ function NoBookmarksFound() {
         backgroundColor: COLORS.background,
       }}
     >
-      <Text style={{ color: COLORS.primary, fontSize: 22 }}>No bookmarked posts yet</Text>
+      <Text style={{ color: COLORS.grey }}>No bookmarked posts yet</Text>
     </View>
   );
 }

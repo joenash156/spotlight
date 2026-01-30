@@ -1,20 +1,23 @@
 import React from "react";
-import { View, Dimensions } from "react-native";
+import { View } from "react-native";
 import Modal from "react-native-modal";
 
 type BottomModalProps = {
   visible: boolean;
   onClose: () => void;
+  height?: number;
+  width?: number;
   children: React.ReactNode;
 };
 
 export default function BottomModal({
   visible,
   onClose,
+  height,
+  width,
   children,
 }: BottomModalProps) {
 
-  const { height } = Dimensions.get("window");
 
   return (
     <Modal
@@ -28,7 +31,8 @@ export default function BottomModal({
       {/* BOTTOM SHEET */}
       <View
         style={{
-          height: height * 0.3,
+          height,
+          width
         }}
         className="bg-gray-900 rounded-t-3xl p-5"
       >

@@ -11,7 +11,6 @@ import { api } from '@/convex/_generated/api'
 import CommentsModal from './CommentsModal'
 import { formatDistanceToNow } from 'date-fns'
 import { useUser } from '@clerk/clerk-expo'
-import { Button } from '@react-navigation/elements'
 import BottomModal from './BottomModal'
 
 type PostProps = {
@@ -33,7 +32,7 @@ type PostProps = {
 
 }
 
-const { width, height } = Dimensions.get("window")
+const { width } = Dimensions.get("window")
 
 const Post = ({ post }: PostProps) => {
 
@@ -80,6 +79,8 @@ const Post = ({ post }: PostProps) => {
       console.error("Error deleting post:", err)
     }
   }
+
+  // update post actions in real time
   useEffect(() => {
     setIsLiked(post.isLiked)
     setLikesCount(post.likes)
@@ -99,7 +100,7 @@ const Post = ({ post }: PostProps) => {
         }}
         className="flex-row items-center justify-between px-4 py-2"
       >
-        <Link href={"/(tabs)/notifications"} asChild>
+        <Link href={currentUser?._id === post.author._id ? "/(tabs)/profile" : `/user/${post.author._id}`} asChild>
           <TouchableOpacity style={{}}
             className="flex-row items-center"
           >
@@ -122,22 +123,6 @@ const Post = ({ post }: PostProps) => {
         </Link>
 
         {/* owner of post sees the delete button */}
-        {/* {post.author._id === currentUser?._id ? (
-          <TouchableOpacity
-            activeOpacity={0.6}
-            onPress={handleDelete}
-          >
-            <Ionicons name="trash-outline" size={20} color={COLORS.primary} />
-          </TouchableOpacity>
-        ) :
-          (
-            <TouchableOpacity
-              activeOpacity={0.6}
-            >
-              <Ionicons name="ellipsis-horizontal" size={20} color={COLORS.white} />
-            </TouchableOpacity>
-          )} */}
-        {/* */}
         <TouchableOpacity
           activeOpacity={0.6}
           onPress={() => setShowPostMenu(true)}
@@ -149,7 +134,7 @@ const Post = ({ post }: PostProps) => {
           onClose={() => setShowPostMenu(false)}
           visible={showPostMenu}
         >
-          <Text className="text-gray-100 text-center font-semibold mb-6">
+          <Text className="text-gray-400 font-bold text-lg mb-4 text-center">
             Post Action
           </Text>
           {post.author._id === currentUser?._id ? (
