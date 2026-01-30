@@ -1,15 +1,28 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useState } from 'react'
-import { router } from 'expo-router'
+// import { router } from 'expo-router'
 import { useAuth } from '@clerk/clerk-expo'
 import { COLORS } from '@/constants/theme'
 import { Ionicons, FontAwesome6 } from '@expo/vector-icons'
 import BottomModal from '@/components/BottomModal'
+import { STORIES } from '@/constants/mock-data'
+import Story from '@/components/Story'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import Loader from "@/components/Loader"
+import Post from '@/components/Post'
 
 const Home = () => {
 
   const { signOut } = useAuth()
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  // fetch posts
+  const posts = useQuery(api.post.getFeedPosts)
+
+  if (posts === undefined) return <Loader />
+
+  if (posts.length === 0) return <NoPostsFound />
 
   function handleSignout() {
     signOut()
@@ -47,6 +60,36 @@ const Home = () => {
         </TouchableOpacity>
       </View>
 
+      <ScrollView
+
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{
+            paddingVertical: 8,
+            borderBottomWidth: 1,
+            borderBottomColor: COLORS.surface,
+
+          }}
+        >
+          {/* stories */}
+          {STORIES.map((story) => (
+            <Story key={story.id} story={story} />
+          ))}
+        </ScrollView>
+
+        <View
+          className="pb-16"
+        >
+          {posts.map((post) => (
+            <Post key={post._id} post={post} />
+          ))}
+        </View>
+
+      </ScrollView>
+
+      {/* modal */}
       <BottomModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -75,3 +118,16 @@ const Home = () => {
 }
 
 export default Home
+
+const NoPostsFound = () => (
+  <View
+    style={{
+      flex: 1,
+      backgroundColor: COLORS.background,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ fontSize: 20, color: COLORS.primary }}>No posts yet</Text>
+  </View>
+);
