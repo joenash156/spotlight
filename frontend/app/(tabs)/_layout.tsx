@@ -1,4 +1,4 @@
-import { Stack, Tabs } from 'expo-router'
+import { Tabs } from 'expo-router'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';

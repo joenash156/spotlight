@@ -99,18 +99,20 @@ const Home = () => {
           className="flex-row items-baseline justify-center"
         >
           {/* <Ionicons name="person-outline" size={15} color={"red"} /> */}
-          <Text className="text-red-600 text-lg mb-4 ml-1">
+          <Text className="text-gray-400 font-bold text-lg mb-4 ml-1">
             Account
           </Text>
         </View>
 
-        <TouchableOpacity
-
-          onPress={handleSignout}
-          className="bg-red-600 py-3 rounded-xl"
-        >
-          <Text className="text-white text-center">Sign out</Text>
-        </TouchableOpacity>
+        <View className="gap-2">
+          <Text className="text-gray-400 text-sm">Sign out</Text>
+          <TouchableOpacity
+            onPress={handleSignout}
+            className="bg-red-600 py-3 rounded-xl"
+          >
+            <Text className="text-white text-center">Sign out</Text>
+          </TouchableOpacity>
+        </View>
       </BottomModal>
 
     </View>

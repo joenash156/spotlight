@@ -1,25 +1,66 @@
-import { View, Text, TouchableOpacity, Dimensions, GestureResponderEvent } from 'react-native'
+import { View, Text, TouchableOpacity, Dimensions } from 'react-native'
 import { Image } from 'expo-image'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants/theme'
+import { Id } from '@/convex/_generated/dataModel'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 
-const Post = ({ post }: { post: any }) => {
+type PostProps = {
+  post: {
+    _id: Id<"posts">;
+    imageUrl: string;
+    caption?: string;
+    likes: number;
+    comments: number;
+    _creationTime: number;
+    isLiked: boolean;
+    isBookmarked: boolean;
+    author: {
+      _id: string;
+      username: string;
+      image: string;
+    };
+  };
+}
+
+const Post = ({ post }: PostProps) => {
 
   const { width } = Dimensions.get("window")
 
-  function handleLike(event: GestureResponderEvent): void {
-    throw new Error('Function not implemented.')
+  const [isLiked, setIsLiked] = useState(post.isLiked)
+  const [likesCount, setLikesCount] = useState(post.likes)
+
+  const toggleLike = useMutation(api.post.toggleLike)
+
+  async function handleLike() {
+    try {
+      const newIsLiked = await toggleLike({ postId: post._id });
+      setIsLiked(newIsLiked)
+      setLikesCount((prev) => (newIsLiked ? prev + 1 : prev - 1))
+    } catch (err: unknown) {
+      console.error("Error toggling likes:", err)
+    }
   }
 
-  function setShowComments(arg0: boolean): void {
-    throw new Error('Function not implemented.')
-  }
+  useEffect(() => {
+    setIsLiked(post.isLiked)
+    setLikesCount(post.likes)
+  }, [post.isLiked, post.likes])
 
-  function formatDistanceToNow(_creationTime: any, arg1: { addSuffix: boolean }): React.ReactNode {
-    throw new Error('Function not implemented.')
-  }
+  // function handleLike(event: GestureResponderEvent): void {
+  //   throw new Error('Function not implemented.')
+  // }
+
+  // function setShowComments(arg0: boolean): void {
+  //   throw new Error('Function not implemented.')
+  // }
+
+  // function formatDistanceToNow(_creationTime: any, arg1: { addSuffix: boolean }): React.ReactNode {
+  //   throw new Error('Function not implemented.')
+  // }
 
   return (
     <View
@@ -84,21 +125,28 @@ const Post = ({ post }: { post: any }) => {
       <View style={{}}
         className="flex-row justify-between items-center px-4 py-2"
       >
+        {/* likes */}
         <View style={{}}
           className="flex-row items-center gap-4"
         >
-          <TouchableOpacity
-            onPress={handleLike}
-            activeOpacity={0.6}
-          >
-            <Ionicons
-              name='heart-outline'
-              //name={isLiked ? "heart" : "heart-outline"}
-              size={24}
-              color={COLORS.white}
-            //color={isLiked ? COLORS.primary : COLORS.white}
-            />
-          </TouchableOpacity>
+          <View className="flex-row items-center gap-1">
+            <TouchableOpacity
+              onPress={handleLike}
+              activeOpacity={0.6}
+            >
+              <Ionicons
+                name={isLiked ? "heart" : "heart-outline"}
+                size={26}
+                color={isLiked ? COLORS.primary : COLORS.white}
+              />
+            </TouchableOpacity>
+            <Text style={{}}
+              className="font-semibold text-gray-100 mb-"
+            >
+              {likesCount > 0 ? `${likesCount.toLocaleString()}` : ""}
+            </Text>
+          </View>
+
           <TouchableOpacity
             // onPress={() => setShowComments(true)}
             activeOpacity={0.6}
@@ -106,31 +154,31 @@ const Post = ({ post }: { post: any }) => {
             <Ionicons name="chatbubble-outline" size={22} color={COLORS.white} />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          //onPress={handleBookmark}
-          activeOpacity={0.6}
-        >
-          <Ionicons
-            name='bookmark-outline'
-            //name={isBookmarked ? "bookmark" : "bookmark-outline"}
-            size={22}
-            color={COLORS.white}
-          />
-        </TouchableOpacity>
+
+        <View>
+          <TouchableOpacity
+            //onPress={handleBookmark}
+            activeOpacity={0.6}
+          >
+            <Ionicons
+              name='bookmark-outline'
+              //name={isBookmarked ? "bookmark" : "bookmark-outline"}
+              size={22}
+              color={COLORS.white}
+            />
+          </TouchableOpacity>
+        </View>
+
       </View>
 
       {/* post info */}
       <View style={{}}
         className="px-4"
       >
-        <Text style={{}}
-          className="font-semibold text-gray-100 mb-2"
-        >
-          {post.likes > 0 ? `${post.likes.toLocaleString()} likes` : "Be the first to like"}
-        </Text>
+
         {post.caption && (
           <View style={{}}
-            className="flex-row flex-wrap mb-3"
+            className="flex-row flex-wrap mb-"
           >
             <Text style={{}} className="font-semibold text-gray-100 mr-3">{post.author.username}</Text>
             <Text style={{}} className="text-gray-100 flex-1">{post.caption}</Text>
@@ -138,13 +186,16 @@ const Post = ({ post }: { post: any }) => {
         )}
 
         {post.comments > 0 && (
-          <TouchableOpacity onPress={() => setShowComments(true)}>
+          <TouchableOpacity
+          //onPress={() => setShowComments(true)}
+          >
             <Text style={{}} className="text-gray-600 mb-1">View all {post.comments} comments</Text>
           </TouchableOpacity>
         )}
 
-        <Text style={{}} className="text-gray-600 mb-3">
-          {formatDistanceToNow(post._creationTime, { addSuffix: true })}
+        <Text style={{}} className="text-gray-500 text-sm mb-3">
+          {/* {formatDistanceToNow(post._creationTime, { addSuffix: true })} */}
+          2 hours ago
         </Text>
       </View>
     </View >
