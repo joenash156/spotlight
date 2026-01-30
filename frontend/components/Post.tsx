@@ -7,6 +7,8 @@ import { COLORS } from '@/constants/theme'
 import { Id } from '@/convex/_generated/dataModel'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
+import CommentsModal from './CommentsModal'
+import { formatDistanceToNow } from 'date-fns'
 
 type PostProps = {
   post: {
@@ -32,8 +34,12 @@ const Post = ({ post }: PostProps) => {
 
   const [isLiked, setIsLiked] = useState(post.isLiked)
   const [likesCount, setLikesCount] = useState(post.likes)
+  const [commentsCount, setCommentsCount] = useState(post.comments)
+  const [showComments, setShowComments] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked)
 
   const toggleLike = useMutation(api.post.toggleLike)
+  const toggleBookmark = useMutation(api.bookmark.toggleBookmark)
 
   async function handleLike() {
     try {
@@ -45,22 +51,21 @@ const Post = ({ post }: PostProps) => {
     }
   }
 
+  async function handleBookmark() {
+    try {
+      const newIsBookmarked = await toggleBookmark({ postId: post._id });
+      setIsBookmarked(newIsBookmarked)
+    } catch (err: unknown) {
+      console.error("Error toggling bookmark:", err)
+    }
+  }
+
   useEffect(() => {
     setIsLiked(post.isLiked)
     setLikesCount(post.likes)
-  }, [post.isLiked, post.likes])
+    setCommentsCount(post.comments)
+  }, [post.isLiked, post.likes, post.comments])
 
-  // function handleLike(event: GestureResponderEvent): void {
-  //   throw new Error('Function not implemented.')
-  // }
-
-  // function setShowComments(arg0: boolean): void {
-  //   throw new Error('Function not implemented.')
-  // }
-
-  // function formatDistanceToNow(_creationTime: any, arg1: { addSuffix: boolean }): React.ReactNode {
-  //   throw new Error('Function not implemented.')
-  // }
 
   return (
     <View
@@ -110,7 +115,7 @@ const Post = ({ post }: PostProps) => {
 
       {/* image */}
       <Image
-        source={post.imageUrl}
+        source={{ uri: post.imageUrl }}
         contentFit="cover"
         transition={200}
         cachePolicy={"memory-disk"}
@@ -147,22 +152,28 @@ const Post = ({ post }: PostProps) => {
             </Text>
           </View>
 
-          <TouchableOpacity
-            // onPress={() => setShowComments(true)}
-            activeOpacity={0.6}
-          >
-            <Ionicons name="chatbubble-outline" size={22} color={COLORS.white} />
-          </TouchableOpacity>
+          <View className="flex-row items-center gap-1">
+            <TouchableOpacity
+              onPress={() => setShowComments(true)}
+              activeOpacity={0.6}
+            >
+              <Ionicons name="chatbubble-outline" size={22} color={COLORS.white} />
+            </TouchableOpacity>
+            <Text style={{}}
+              className="font-semibold text-gray-100 mb-"
+            >
+              {commentsCount > 0 ? `${commentsCount.toLocaleString()}` : ""}
+            </Text>
+          </View>
         </View>
 
         <View>
           <TouchableOpacity
-            //onPress={handleBookmark}
+            onPress={handleBookmark}
             activeOpacity={0.6}
           >
             <Ionicons
-              name='bookmark-outline'
-              //name={isBookmarked ? "bookmark" : "bookmark-outline"}
+              name={isBookmarked ? "bookmark" : "bookmark-outline"}
               size={22}
               color={COLORS.white}
             />
@@ -178,25 +189,31 @@ const Post = ({ post }: PostProps) => {
 
         {post.caption && (
           <View style={{}}
-            className="flex-row flex-wrap mb-"
+            className="flex-row flex-wrap mb-2"
           >
             <Text style={{}} className="font-semibold text-gray-100 mr-3">{post.author.username}</Text>
             <Text style={{}} className="text-gray-100 flex-1">{post.caption}</Text>
           </View>
         )}
 
-        {post.comments > 0 && (
+        {/* {post.comments > 0 && (
           <TouchableOpacity
-          //onPress={() => setShowComments(true)}
+            onPress={() => setShowComments(true)}
           >
-            <Text style={{}} className="text-gray-600 mb-1">View all {post.comments} comments</Text>
+            <Text style={{}} className="text-gray-400 mb-1">View all {post.comments === 1 ? "1 comment" : `${post.comments} comments`}</Text>
           </TouchableOpacity>
-        )}
+        )} */}
 
         <Text style={{}} className="text-gray-500 text-sm mb-3">
-          {/* {formatDistanceToNow(post._creationTime, { addSuffix: true })} */}
-          2 hours ago
+          {formatDistanceToNow(post._creationTime, { addSuffix: true })}
         </Text>
+
+        <CommentsModal
+          postId={post._id}
+          visible={showComments}
+          onClose={() => setShowComments(false)}
+          onCommentAdded={() => setCommentsCount((prev) => prev + 1)}
+        />
       </View>
     </View >
   )
