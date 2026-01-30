@@ -71,7 +71,7 @@ const Post = ({ post }: PostProps) => {
         style={{
 
         }}
-        className="flex-row items-center justify-between p-4"
+        className="flex-row items-center justify-between px-4 py-2"
       >
         <Link href={"/(tabs)/notifications"} asChild>
           <TouchableOpacity style={{}}

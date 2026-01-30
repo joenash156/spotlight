@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import { useFonts } from "expo-font";
 import { useSSO } from '@clerk/clerk-expo';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 // import { COLORS } from '@/constants/theme'
 

@@ -10,7 +10,10 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 
 const ClerkAndConvexProvider = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ClerkProvider tokenCache={tokenCache}>
+    <ClerkProvider
+      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+      tokenCache={tokenCache}
+    >
       <ConvexProviderWithClerk useAuth={useAuth} client={convex}>
         {children}
       </ConvexProviderWithClerk>

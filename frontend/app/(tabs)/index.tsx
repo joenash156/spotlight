@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native'
 import React, { useState } from 'react'
 // import { router } from 'expo-router'
 import { useAuth } from '@clerk/clerk-expo'
@@ -60,24 +60,10 @@ const Home = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      {/* <ScrollView
 
       >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{
-            paddingVertical: 8,
-            borderBottomWidth: 1,
-            borderBottomColor: COLORS.surface,
-
-          }}
-        >
-          {/* stories */}
-          {STORIES.map((story) => (
-            <Story key={story.id} story={story} />
-          ))}
-        </ScrollView>
+        
 
         <View
           className="pb-16"
@@ -87,7 +73,20 @@ const Home = () => {
           ))}
         </View>
 
-      </ScrollView>
+      </ScrollView> */}
+
+      <FlatList
+        data={posts}
+        renderItem={({ item }) => (
+          <Post post={item} />
+        )}
+        keyExtractor={(item) => item._id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 60
+        }}
+        ListHeaderComponent={<StoriesSection />}
+      />
 
       {/* modal */}
       <BottomModal
@@ -98,7 +97,6 @@ const Home = () => {
         <View
           className="flex-row items-baseline justify-center"
         >
-          {/* <Ionicons name="person-outline" size={15} color={"red"} /> */}
           <Text className="text-gray-400 font-bold text-lg mb-4 ml-1">
             Account
           </Text>
@@ -133,3 +131,19 @@ const NoPostsFound = () => (
     <Text style={{ fontSize: 20, color: COLORS.primary }}>No posts yet</Text>
   </View>
 );
+
+const StoriesSection = () => {
+  return (
+    <FlatList
+      data={STORIES}
+      renderItem={({ item }) => (
+        <Story story={item} />
+      )}
+      keyExtractor={(item) => item.id}
+      horizontal
+      contentContainerStyle={{
+        paddingVertical: 8
+      }}
+    />
+  );
+}
