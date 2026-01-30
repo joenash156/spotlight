@@ -1,14 +1,18 @@
 import { View, Text, TouchableOpacity, Dimensions } from 'react-native'
+import Modal from 'react-native-modal'
 import { Image } from 'expo-image'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants/theme'
 import { Id } from '@/convex/_generated/dataModel'
-import { useMutation } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import CommentsModal from './CommentsModal'
 import { formatDistanceToNow } from 'date-fns'
+import { useUser } from '@clerk/clerk-expo'
+import { Button } from '@react-navigation/elements'
+import BottomModal from './BottomModal'
 
 type PostProps = {
   post: {
@@ -26,20 +30,29 @@ type PostProps = {
       image: string;
     };
   };
+
 }
+
+const { width, height } = Dimensions.get("window")
 
 const Post = ({ post }: PostProps) => {
 
-  const { width } = Dimensions.get("window")
+
 
   const [isLiked, setIsLiked] = useState(post.isLiked)
   const [likesCount, setLikesCount] = useState(post.likes)
   const [commentsCount, setCommentsCount] = useState(post.comments)
   const [showComments, setShowComments] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked)
+  const [showPostMenu, setShowPostMenu] = useState(false)
+
+  const { user } = useUser();
+
+  const currentUser = useQuery(api.users.getUserByClerkId, user ? { clerkId: user.id! } : "skip");
 
   const toggleLike = useMutation(api.post.toggleLike)
   const toggleBookmark = useMutation(api.bookmark.toggleBookmark)
+  const deletePost = useMutation(api.post.deletePost)
 
   async function handleLike() {
     try {
@@ -60,11 +73,19 @@ const Post = ({ post }: PostProps) => {
     }
   }
 
+  async function handleDelete() {
+    try {
+      await deletePost({ postId: post._id });
+    } catch (err: unknown) {
+      console.error("Error deleting post:", err)
+    }
+  }
   useEffect(() => {
     setIsLiked(post.isLiked)
     setLikesCount(post.likes)
     setCommentsCount(post.comments)
-  }, [post.isLiked, post.likes, post.comments])
+    setIsBookmarked(post.isBookmarked)
+  }, [post.isLiked, post.likes, post.comments, post.isBookmarked])
 
 
   return (
@@ -100,17 +121,83 @@ const Post = ({ post }: PostProps) => {
           </TouchableOpacity>
         </Link>
 
-        {/* show a delete button */}
-        {/* <TouchableOpacity
-          activeOpacity={0.6}
-        >
-          <Ionicons name="ellipsis-horizontal" size={20} color={COLORS.white} />
-        </TouchableOpacity> */}
+        {/* owner of post sees the delete button */}
+        {/* {post.author._id === currentUser?._id ? (
+          <TouchableOpacity
+            activeOpacity={0.6}
+            onPress={handleDelete}
+          >
+            <Ionicons name="trash-outline" size={20} color={COLORS.primary} />
+          </TouchableOpacity>
+        ) :
+          (
+            <TouchableOpacity
+              activeOpacity={0.6}
+            >
+              <Ionicons name="ellipsis-horizontal" size={20} color={COLORS.white} />
+            </TouchableOpacity>
+          )} */}
+        {/* */}
         <TouchableOpacity
           activeOpacity={0.6}
+          onPress={() => setShowPostMenu(true)}
         >
-          <Ionicons name="trash-outline" size={20} color={COLORS.primary} />
+          <Ionicons name="ellipsis-horizontal" size={20} color={COLORS.white} />
         </TouchableOpacity>
+
+        <BottomModal
+          onClose={() => setShowPostMenu(false)}
+          visible={showPostMenu}
+        >
+          <Text className="text-gray-100 text-center font-semibold mb-6">
+            Post Action
+          </Text>
+          {post.author._id === currentUser?._id ? (
+            <View>
+
+              <TouchableOpacity
+                className="py-3 bg-red-600 rounded-xl mb-4 "
+                activeOpacity={0.6}
+                onPress={() => {
+                  handleDelete();
+                  setShowPostMenu(false);
+                }}
+              >
+                <Text className="text-gray-100 text-center font-semibold">
+                  Delete Post
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="py-3 flex-row items-center justify-center gap-1 border border-gray-700 rounded-xl"
+                onPress={() => setShowPostMenu(false)}
+                activeOpacity={0.6}
+              >
+                <Ionicons name="flag-outline" size={24} color={COLORS.primary} />
+                <Text className="text-gray-100 text-center font-semibold"
+                >
+                  Report Post
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View>
+              <TouchableOpacity
+                className="py-3 flex-row items-center justify-center gap-1 border border-gray-700 rounded-xl"
+                onPress={() => setShowPostMenu(false)}
+                activeOpacity={0.6}
+              >
+                <Ionicons name="flag-outline" size={24} color={COLORS.primary} />
+                <Text className="text-gray-100 text-center font-semibold"
+                >
+                  Report Post
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+        </BottomModal>
+
       </View>
 
       {/* image */}

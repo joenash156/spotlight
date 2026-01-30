@@ -24,7 +24,6 @@ export default function BottomModal({
         margin: 0,
         justifyContent: "flex-end",
       }}
-    //hasBackdrop={true}    
     >
       {/* BOTTOM SHEET */}
       <View
